@@ -5,7 +5,6 @@
 
 void usage() {
     // arvc가 2가 아닐 경우 실행
-
     printf("syntax: pcap-test <interface>\n");
     printf("sample: pcap-test wlan0\n");
 }
@@ -17,12 +16,16 @@ typedef struct {
 Param param = {
     .dev_ = NULL
 };
+
+#pragma pack(push, 1)
 typedef struct {
     uint8_t Destination[6]; //des mac
     uint8_t Source[6];    // src mac
     uint16_t Type;
 
 }NETWORK_ETHERNET_HEADER;
+
+
 typedef struct {
     uint8_t Version : 4;
     uint8_t Header_Length : 4;
@@ -30,22 +33,19 @@ typedef struct {
     uint16_t Total_Packet_Length;
     uint16_t Identifier;
     uint8_t Flags : 3;
-    uint32_t Fragment_Offset : 19;
+    uint32_t Fragment_Offset : 13;
     uint8_t Time_to_Live;
     uint8_t Protocol_Id;
     uint16_t Header_Checksum;
     uint8_t Source_IP_Address[4];
     uint8_t Destination_IP_Address[4];
-    uint32_t IP_Header_Options;
-    uint32_t Data;
-
-
 }NETWORK_IP_HEADER;
 
 typedef struct{
     uint16_t Source_Port;
     uint16_t Destination_Port;
 }NETWORK_TCP_PROTOCOL;
+#pragma pack(pop)
 
 bool parse(Param* param, int argc, char* argv[]) {
     // ./pcap-test로 실행할 경우 argc는 1개 ./pcap-test enp0s3와 같이 는추가 인자를 주면 1씩 더해짐
@@ -93,10 +93,10 @@ int main(int argc, char* argv[]) {
             break;
         }
         NETWORK_ETHERNET_HEADER *Ethernet = (NETWORK_ETHERNET_HEADER*)packet;
-        NETWORK_IP_HEADER* IP = (NETWORK_IP_HEADER*)(packet + sizeof(NETWORK_ETHERNET_HEADER));
+        NETWORK_IP_HEADER *IP = (NETWORK_IP_HEADER*)(packet + sizeof(NETWORK_ETHERNET_HEADER));
         NETWORK_TCP_PROTOCOL *TCP = (NETWORK_TCP_PROTOCOL*)(packet + sizeof(NETWORK_ETHERNET_HEADER)+ sizeof(NETWORK_IP_HEADER));
         const u_char *payload = (NETWORK_TCP_PROTOCOL*)(packet + sizeof(NETWORK_ETHERNET_HEADER)+ sizeof(NETWORK_IP_HEADER)) + 20;
-        if (htons(Ethernet->Type) != 0x0800)
+        if (htons(Ethernet->Type) != 0x0800 || IP->Protocol_Id != 0x06)
             continue;
         printf("Dst Mac    : ");
         for (int i = 0; i < 6; i++)
@@ -138,14 +138,15 @@ int main(int argc, char* argv[]) {
 
         }
 
-        printf("Src Port   : %d\n",TCP->Source_Port);
-        printf("Dst Port   : %d\n",TCP->Destination_Port);
+        printf("Src Port   : %u\n",TCP->Source_Port);
+        printf("Dst Port   : %u\n",TCP->Destination_Port);
         printf("total Byte : %u\n",IP->Total_Packet_Length);
         printf("Payload    : ");
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 16; i++) {
             printf("%02X ", payload[i]);
         }
         printf("\n");
+
 
         printf("\n");
     }
