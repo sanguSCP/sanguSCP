@@ -33,7 +33,7 @@ typedef struct {
     uint16_t Total_Packet_Length;
     uint16_t Identifier;
     uint8_t Flags : 3;
-    uint32_t Fragment_Offset : 13;
+    uint16_t Fragment_Offset : 13;
     uint8_t Time_to_Live;
     uint8_t Protocol_Id;
     uint16_t Header_Checksum;
@@ -44,6 +44,8 @@ typedef struct {
 typedef struct{
     uint16_t Source_Port;
     uint16_t Destination_Port;
+    uint32_t sequence_number;
+    uint8_t HLEN : 4;
 }NETWORK_TCP_PROTOCOL;
 #pragma pack(pop)
 
@@ -94,8 +96,8 @@ int main(int argc, char* argv[]) {
         }
         NETWORK_ETHERNET_HEADER *Ethernet = (NETWORK_ETHERNET_HEADER*)packet;
         NETWORK_IP_HEADER *IP = (NETWORK_IP_HEADER*)(packet + sizeof(NETWORK_ETHERNET_HEADER));
-        NETWORK_TCP_PROTOCOL *TCP = (NETWORK_TCP_PROTOCOL*)(packet + sizeof(NETWORK_ETHERNET_HEADER)+ sizeof(NETWORK_IP_HEADER));
-        const u_char *payload = (NETWORK_TCP_PROTOCOL*)(packet + sizeof(NETWORK_ETHERNET_HEADER)+ sizeof(NETWORK_IP_HEADER)) + 20;
+        NETWORK_TCP_PROTOCOL *TCP = (NETWORK_TCP_PROTOCOL*)((packet + sizeof(NETWORK_ETHERNET_HEADER)+ sizeof(NETWORK_IP_HEADER)));
+        uint8_t *payload = (packet + sizeof(NETWORK_ETHERNET_HEADER)+ sizeof(NETWORK_IP_HEADER) + 20);
         if (htons(Ethernet->Type) != 0x0800 || IP->Protocol_Id != 0x06)
             continue;
         printf("Dst Mac    : ");
@@ -138,17 +140,22 @@ int main(int argc, char* argv[]) {
 
         }
 
-        printf("Src Port   : %u\n",TCP->Source_Port);
-        printf("Dst Port   : %u\n",TCP->Destination_Port);
-        printf("total Byte : %u\n",IP->Total_Packet_Length);
-        printf("Payload    : ");
-        for (int i = 0; i < 16; i++) {
-            printf("%02X ", payload[i]);
+        printf("Src Port   : %u\n",ntohs(TCP->Source_Port));
+        printf("Dst Port   : %u\n",ntohs(TCP->Destination_Port));
+        printf("total Byte : %u\n",header->caplen);
+        if (header->caplen - sizeof(NETWORK_ETHERNET_HEADER)- sizeof(NETWORK_IP_HEADER) - 20 > 0)
+        {
+            printf("Payload    : ");
+            for (int i = 0; i < 16; i++)
+            {
+                printf("%02X ", *(payload+i) );
+            }
         }
-        printf("\n");
 
 
-        printf("\n");
+
+        printf("\n\n");
+
     }
     pcap_close(pcap);
     //패킷 캡쳐 후 pcap_header 구조체로 패킷의 길이를 출력
