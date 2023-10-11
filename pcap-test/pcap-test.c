@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
             }
 
         }
-            printf("\n%d",cnt);
+           
         printf("\n\n");
 
 
