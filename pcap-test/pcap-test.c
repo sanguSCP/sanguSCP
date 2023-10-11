@@ -45,7 +45,10 @@ typedef struct{
     uint16_t Source_Port;
     uint16_t Destination_Port;
     uint32_t sequence_number;
+    uint32_t Acknowledgement_number;
     uint8_t HLEN : 4;
+    uint8_t tmp : 4;
+
 }NETWORK_TCP_PROTOCOL;
 #pragma pack(pop)
 
@@ -97,9 +100,14 @@ int main(int argc, char* argv[]) {
         NETWORK_ETHERNET_HEADER *Ethernet = (NETWORK_ETHERNET_HEADER*)packet;
         NETWORK_IP_HEADER *IP = (NETWORK_IP_HEADER*)(packet + sizeof(NETWORK_ETHERNET_HEADER));
         NETWORK_TCP_PROTOCOL *TCP = (NETWORK_TCP_PROTOCOL*)((packet + sizeof(NETWORK_ETHERNET_HEADER)+ sizeof(NETWORK_IP_HEADER)));
-        uint8_t *payload = (packet + sizeof(NETWORK_ETHERNET_HEADER)+ sizeof(NETWORK_IP_HEADER) + 20);
+
+        // sizeof(NETWORK_ETHERNET_HEADER)+ 4 | 4를 더한 이유는 CRC checksum 때문
         if (htons(Ethernet->Type) != 0x0800 || IP->Protocol_Id != 0x06)
             continue;
+        uint8_t tmp = IP->Version;
+        IP->Version = IP->Header_Length;
+        IP->Header_Length = tmp;
+
         printf("Dst Mac    : ");
         for (int i = 0; i < 6; i++)
         {
@@ -143,20 +151,25 @@ int main(int argc, char* argv[]) {
         printf("Src Port   : %u\n",ntohs(TCP->Source_Port));
         printf("Dst Port   : %u\n",ntohs(TCP->Destination_Port));
         printf("total Byte : %u\n",header->caplen);
-        if (header->caplen - sizeof(NETWORK_ETHERNET_HEADER)- sizeof(NETWORK_IP_HEADER) - 20 > 0)
+        uint8_t *payload = (uint8_t*)(packet + sizeof(NETWORK_ETHERNET_HEADER)+ 4 + IP->Header_Length*4 +(TCP->tmp)*4  );
+        int cnt =  (header->caplen - sizeof(NETWORK_ETHERNET_HEADER) - (IP->Header_Length*4)- (TCP->tmp*4));
+
+        if (cnt > 16)
+            cnt = 16;
+        if (cnt > 0)
         {
             printf("Payload    : ");
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < cnt; i++)
             {
                 printf("%02X ", *(payload+i) );
             }
+
         }
-
-
-
+            printf("\n%d",cnt);
         printf("\n\n");
+
 
     }
     pcap_close(pcap);
-    //패킷 캡쳐 후 pcap_header 구조체로 패킷의 길이를 출력
+
 }
