@@ -4,6 +4,8 @@
 <br><h5>● Beacon 패킷을 분석하여 ESSID, Beacon Count, PWR, #Data Count, CH, ENC, ESSID 정보를 출력함.</h5>
 <br><br>
 
+사용 예시
+<br>
 ![스크린샷 2024-05-13 161453](https://github.com/sanguSCP/sanguSCP/assets/50989038/f140d02c-93b5-46dd-bedc-d3cf3f531696)
 
 
