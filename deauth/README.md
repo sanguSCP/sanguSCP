@@ -3,5 +3,5 @@
 
 <h2>사용법</h2>
 <br>sudo ./pcap-test wlx588694f7a0d3 -ap &lt;mac 주소&gt;
-<br>	-stn &lt;mac 주소&gt;
-<br>	-c &lt;채널&gt;
+<br>&nbsp;	-stn &lt;mac 주소&gt;
+<br>&nbsp;	-c &lt;채널&gt;
