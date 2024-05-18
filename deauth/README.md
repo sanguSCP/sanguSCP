@@ -7,7 +7,6 @@
 <br>&nbsp;	-c &lt;채널&gt;
 <br>
 <br>
-<br>
 <h2>AP Broadcast 공격</h2>
 <img width="1419" alt="2024" = "" src="https://github.com/sanguSCP/sanguSCP/assets/50989038/ee442eee-b1ff-4a69-a3eb-e1d6102019d2">
 
