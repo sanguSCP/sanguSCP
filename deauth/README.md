@@ -9,7 +9,8 @@
 <br>
 <br>
 <h2>AP Broadcast 공격</h2>
-![스크린샷 2024-05-18 152401](https://github.com/sanguSCP/sanguSCP/assets/50989038/011701c6-b260-4704-be0c-b064583d7980)
+<img width="1419" alt="2024" = "" src="https://github.com/sanguSCP/sanguSCP/assets/50989038/ee442eee-b1ff-4a69-a3eb-e1d6102019d2">
+
 
 <h2>Station Unicast 공격</h2>
 <img width="1419" alt="스크린샷 2024-05-18 152221" src="https://github.com/sanguSCP/sanguSCP/assets/50989038/6eb39088-df87-4ce5-89a7-67af79c059d7">
